@@ -1,7 +1,14 @@
 Phone
 ========================
 
+Test apllication.
 
-________________________
+Implemented features:
+1. CRUD for phones with regular HTML pages
+2. Import/export phonebook in CSV format
 
-License
+In progress:
+1. Add AJAX handlers
+2. Improve test coverage
+
+
