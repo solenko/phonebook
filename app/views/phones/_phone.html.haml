@@ -1,0 +1,6 @@
+%tr
+  %td= phone.name
+  %td= phone.number
+  %td
+    = link_to t('.edit', :default => t("helpers.links.edit")), edit_phone_path(phone), :class => 'btn btn-mini edit'
+    = link_to t('.destroy', :default => t("helpers.links.destroy")), phone_path(phone), :method => :delete, :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')), :class => 'btn btn-mini btn-danger destroy'

@@ -1,0 +1,1 @@
+<%- @phones.each do |phone| -%><%=raw [phone.name, phone.number].to_csv(csv_config) %><%- end -%>

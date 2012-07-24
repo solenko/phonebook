@@ -1,0 +1,4 @@
+#import_form_wrapper
+  = simple_form_for :import, :url => import_phones_path do |f|
+    = f.input :csv, :as => :file, :required => true
+    = f.button :submit
