@@ -1,6 +1,6 @@
 require 'csv'
 class PhonesController < ApplicationController
-  helper_method :csv_config
+  helper_method :csv_config, :order_field, :order_direction
 
   before_filter :authenticate_user!
   before_filter :find_or_build_resource, :except => [:index, :import]
@@ -53,11 +53,7 @@ class PhonesController < ApplicationController
     f = params[:import][:csv].read
     @deleted, @updated, @created, @ignored, @line, @errors = 0, 0, 0, 0, 0, {}
     processed_ids = []
-    export_datetime = begin
-          Time.parse(params[:import][:csv].original_filename.split('-').last)
-        rescue ArgumentError => e
-          nil
-    end
+    export_datetime = Time.parse(params[:import][:csv].original_filename.split('-').last) rescue nil
 
     CSV.parse(f, csv_config) do |row|
       @line += 1
@@ -81,7 +77,7 @@ class PhonesController < ApplicationController
     end
     if export_datetime
       scope = current_user.phones.where(["updated_at < ?", export_datetime])
-      scope = scope.where("id NOT IN (?)") if processed_ids.any?
+      scope = scope.where(["id NOT IN (?)", processed_ids]) if processed_ids.any?
       @deleted = scope.destroy_all().size
     end
   rescue CSV::MalformedCSVError => e
