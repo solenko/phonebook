@@ -3,12 +3,13 @@ class ApplicationController < ActionController::Base
   after_filter :xhr_flash
 
   protected
-    def xhr_flash
-      return unless request.xhr?
-      flash.each do |type, flash|
-        response.headers["X-Message-#{type}"] = flash
-      end
-      flash.discard
+
+  def xhr_flash
+    return unless request.xhr?
+    flash.each do |type, flash|
+      response.headers["X-Message-#{type}"] = flash
     end
+    flash.discard
+  end
 
 end
