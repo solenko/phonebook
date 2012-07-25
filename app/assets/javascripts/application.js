@@ -17,6 +17,8 @@
 //= require_tree .
 
 
+// FIXME move this into separate js or coffee file
+
 $(function() {
     var scope = $('#main.c-phones');
     $('#import_form_wrapper', scope).hide();
@@ -59,6 +61,9 @@ $(function() {
           $('#messages').html(html);
         };
         var message;
+
+        // FIXME what if you have both Notice and Alert headers?
+
         if (message = xhr.getResponseHeader('X-Message-Notice')) {
             renderMessage('success', message);
         }

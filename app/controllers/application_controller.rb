@@ -3,6 +3,8 @@ class ApplicationController < ActionController::Base
   after_filter :xhr_flash
 
   protected
+
+  # FIXME no indent here. Consult https://github.com/bbatsov/ruby-style-guide
     def xhr_flash
       return unless request.xhr?
       flash.each do |type, flash|
