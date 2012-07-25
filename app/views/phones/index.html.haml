@@ -7,7 +7,11 @@
 = link_to t('.new', :default => t("helpers.links.import")), phones_path, :class => 'btn btn-primary import'
 
 = render 'import_form'
-%table.table.table-striped
+
+#phone_form_wrapper{:style => "display: none;"}
+  = render 'form', :phone => Phone.new
+
+%table.table.table-striped#phones_list
   %thead
     %tr
       %th= model_class.human_attribute_name(:name)
@@ -18,4 +22,5 @@
 
 = will_paginate @phones
 = link_to t('.new', :default => t("helpers.links.new")), new_phone_path, :class => 'btn btn-primary'
+
 

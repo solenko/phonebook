@@ -3,15 +3,12 @@ class PhonesController < ApplicationController
   helper_method :csv_config
 
   before_filter :authenticate_user!
-  before_filter :find_collection, :only => :index
   before_filter :find_or_build_resource, :except => [:index, :import]
   before_filter :require_csv!, :only => :import
-  respond_to :html, :js
+  respond_to :html, :js, :json
 
   def index
-    respond_with(@phones) do |format|
-      format.html
-      format.js
+    respond_with(@phones = collection) do |format|
       format.csv do
         headers["Content-Disposition"] = "attachment; filename=\"#{export_filename}\""
         render
@@ -24,18 +21,32 @@ class PhonesController < ApplicationController
   end
 
   def update
-    flash[:notice] = 'Phone number @updated' if @phone.update_attributes(params[:phone])
-    respond_with(@phone, :location => phones_path)
+    @phone.update_attributes(params[:phone])
+    respond_with(@phone) do |format|
+      unless @phone.errors.any?
+        format.json { render :json => @phone }
+      end
+    end
   end
 
   def create
     flash[:notice] = 'Phone number added' if @phone.update_attributes(params[:phone])
-    respond_with(@phone, :location => phones_path)
+    respond_with(@phone) do |format|
+      format.js do
+          if @phone.errors.any?
+            render :partial => 'form', :locals => {:phone => @phone}, :status => :unprocessable_entity
+          else
+            render :partial => 'phone', :locals => {:phone => @phone}
+          end
+      end
+    end
   end
 
   def destroy
     flash[:notice] = 'Phone number deleted from phonebook' if @phone.destroy
-    respond_with(@phone)
+    respond_with(@phone) do |format|
+      format.js { render :json => @phone }
+    end
   end
 
   def import
@@ -71,8 +82,6 @@ class PhonesController < ApplicationController
     redirect_to phones_path, :alert => "Invalid CSV file format"
   end
 
-
-
   private
 
   def csv_config
@@ -80,21 +89,22 @@ class PhonesController < ApplicationController
   end
 
   def require_csv!
-    redirect_to phones_path, :alert => "Pls, upload CSV file" unless params[:import][:csv].present?
+    redirect_to phones_path, :alert => "Pls, upload CSV file" unless params[:import].present? &&  params[:import][:csv].present?
   end
 
   def export_filename
     "phonebook-#{Time.now.to_s(:number)}.csv"
   end
 
-  def find_collection
-    @phones = current_user.phones
+  def collection
+    scope = current_user.phones
     unless params[:format] == :csv
-      @phones = @phones.order("#{order_field} #{order_direction}").page params[:page]
+      scope = scope.order("#{order_field} #{order_direction}").page params[:page]
       %W(name number).each do |field|
-        @phones = scope.where(["#{field} ILIKE ?", "#{params[field]}%"]) unless params[field].blank?
+        scope = scope.where(["#{field} ILIKE ?", "#{params[field]}%"]) unless params[field].blank?
       end
     end
+    scope
   end
 
   def order_field
@@ -116,4 +126,6 @@ class PhonesController < ApplicationController
       @phone = current_user.phones.new
     end
   end
+
+
 end

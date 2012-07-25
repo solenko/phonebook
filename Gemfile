@@ -18,6 +18,7 @@ end
 
 gem 'jquery-rails'
 gem "haml", ">= 3.1.6"
+gem 'rest_in_place', :git => 'git://github.com/solenko/rest_in_place.git'
 
 
 gem "devise", ">= 2.1.2"

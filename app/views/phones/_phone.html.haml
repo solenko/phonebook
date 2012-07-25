@@ -1,6 +1,5 @@
-%tr
-  %td= phone.name
-  %td= phone.number
+%tr{:id => dom_id(phone), "data-url" => phone_path(phone), "data-object" => "phone" }
+  %td.rest-in-place{"data-attribute" => "name"}= phone.name
+  %td.rest-in-place{"data-attribute" => "number"}= phone.number
   %td
-    = link_to t('.edit', :default => t("helpers.links.edit")), edit_phone_path(phone), :class => 'btn btn-mini edit'
-    = link_to t('.destroy', :default => t("helpers.links.destroy")), phone_path(phone), :method => :delete, :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')), :class => 'btn btn-mini btn-danger destroy'
+    = link_to t('.destroy', :default => t("helpers.links.destroy")), phone_path(phone), :remote => true, :method => :delete, :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')), :class => 'btn btn-mini btn-danger destroy'
