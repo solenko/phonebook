@@ -75,9 +75,6 @@ class PhonesController < ApplicationController
     scope = current_user.phones
     unless params[:format] == :csv
       scope = scope.order("#{order_field} #{order_direction}").page params[:page]
-      %W(name number).each do |field|
-        scope = scope.where(["#{field} ILIKE ?", "#{params[field]}%"]) unless params[field].blank?
-      end
     end
     scope
   end
