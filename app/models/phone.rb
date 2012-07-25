@@ -3,11 +3,6 @@ class Phone < ActiveRecord::Base
 
   belongs_to :user
 
-  validates :name, :number, :presence => true
+  validates :name, :number, :presence => true, :uniqueness => {:scope => :user_id}
 
-  def create_or_update_from_csv(row)
-    csv_name, csv_number = row
-    phone = Phone.find_by_name()
-
-  end
 end

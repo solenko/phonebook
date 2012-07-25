@@ -1,17 +1,17 @@
 %h2 Import complete
 
-%p= "#{@line} lines processed."
-- unless @created.zero?
-  %p= "#{@created} new records added."
-- unless @updated.zero?
-  %p= "#{@updated} records updated."
-- unless @ignored.zero?
-  %p= "#{@ignored} records ignored."
+%p= "#{@import.line} lines processed."
+- unless @import.zero?
+  %p= "#{@import.created} new records added."
+- unless @import.updated.zero?
+  %p= "#{@import.updated} records updated."
+- unless @import.deleted.zero?
+  %p= "#{@import.deleted} records ignored."
 
-- if @errors.any?
-  %p= "#{@errors.size} errors."
+- if @import.errors.any?
+  %p= "#{@import.errors.size} errors."
   %ul.collapsible.collapsed
-    - @errors.each_pair do |line, error|
+    - @import.errors.each_pair do |line, error|
       %li= "On line ##{line}: #{error}"
 
 = link_to "Back to PhoneBook", phones_path

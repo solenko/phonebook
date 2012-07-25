@@ -1,1 +1,2 @@
-<%- @phones.each do |phone| -%><%=raw [phone.name, phone.number].to_csv(csv_config) %><%- end -%>
+<%=raw ["Name", "Phone", "Last update", "Deleted"].to_csv(csv_config.update(:row_sep => '')) %>
+<%- @phones.each do |phone| -%><%=raw [phone.name, phone.number, phone.updated_at.to_s(:db), ''].to_csv(csv_config) %><%- end -%>

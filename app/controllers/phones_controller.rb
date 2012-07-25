@@ -50,44 +50,17 @@ class PhonesController < ApplicationController
   end
 
   def import
-    f = params[:import][:csv].read
-    @deleted, @updated, @created, @ignored, @line, @errors = 0, 0, 0, 0, 0, {}
-    processed_ids = []
-    export_datetime = Time.parse(params[:import][:csv].original_filename.split('-').last) rescue nil
-
-    CSV.parse(f, csv_config) do |row|
-      @line += 1
-      name, number = row
-      phone = current_user.phones.find_by_name(name) || current_user.phones.find_by_number(number)
-
-      begin
-        if phone.nil?
-          current_user.phones.create!(:name => name, :number => number)
-          @created +=1
-        elsif export_datetime && phone.updated_at < export_datetime
-          processed_ids << phone.id
-          phone.update_attributes(:name => name, :number => number)
-          @updated += 1
-        else
-          @ignored += 1
-        end
-      rescue ActiveRecord::RecordInvalid => e
-        @errors[@line] = e.message
-      end
+    begin
+      @import = PhoneImport.perform(params[:import][:csv], current_user)
+    rescue CSV::MalformedCSVError => e
+      redirect_to phones_path(:alert => 'Incorrect CSV file format') and return
     end
-    if export_datetime
-      scope = current_user.phones.where(["updated_at < ?", export_datetime])
-      scope = scope.where(["id NOT IN (?)", processed_ids]) if processed_ids.any?
-      @deleted = scope.destroy_all().size
-    end
-  rescue CSV::MalformedCSVError => e
-    redirect_to phones_path, :alert => "Invalid CSV file format"
   end
 
   private
 
   def csv_config
-    {:col_sep => "\t", :force_quotes => true}
+    PhoneImport.csv_config
   end
 
   def require_csv!
