@@ -49,12 +49,16 @@ class PhonesController < ApplicationController
     end
   end
 
+  # FIXME this belongs to model. not a controller
   def import
     f = params[:import][:csv].read
     @deleted, @updated, @created, @ignored, @line, @errors = 0, 0, 0, 0, 0, {}
     processed_ids = []
+
+    # FIXME strange code formatting
     export_datetime = begin
           Time.parse(params[:import][:csv].original_filename.split('-').last)
+          # FIXME you can't rely on the filename
         rescue ArgumentError => e
           nil
     end
@@ -62,6 +66,8 @@ class PhonesController < ApplicationController
     CSV.parse(f, csv_config) do |row|
       @line += 1
       name, number = row
+
+      # FIXME can't two people have same phone?
       phone = current_user.phones.find_by_name(name) || current_user.phones.find_by_number(number)
 
       begin
@@ -81,6 +87,7 @@ class PhonesController < ApplicationController
     end
     if export_datetime
       scope = current_user.phones.where(["updated_at < ?", export_datetime])
+      # FIXME 2nd argument for where() missed. should be processed_ids?
       scope = scope.where("id NOT IN (?)") if processed_ids.any?
       @deleted = scope.destroy_all().size
     end
@@ -102,8 +109,10 @@ class PhonesController < ApplicationController
     "phonebook-#{Time.now.to_s(:number)}.csv"
   end
 
+  # FIXME ordering code belongs to model
   def collection
     scope = current_user.phones
+
     unless params[:format] == :csv
       scope = scope.order("#{order_field} #{order_direction}").page params[:page]
       %W(name number).each do |field|
