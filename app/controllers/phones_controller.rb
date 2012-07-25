@@ -52,6 +52,7 @@ class PhonesController < ApplicationController
   def import
     f = params[:import][:csv].read
     @deleted, @updated, @created, @ignored, @line, @errors = 0, 0, 0, 0, 0, {}
+    processed_ids = []
     export_datetime = begin
           Time.parse(params[:import][:csv].original_filename.split('-').last)
         rescue ArgumentError => e
@@ -68,6 +69,7 @@ class PhonesController < ApplicationController
           current_user.phones.create!(:name => name, :number => number)
           @created +=1
         elsif export_datetime && phone.updated_at < export_datetime
+          processed_ids << phone.id
           phone.update_attributes(:name => name, :number => number)
           @updated += 1
         else
@@ -77,7 +79,11 @@ class PhonesController < ApplicationController
         @errors[@line] = e.message
       end
     end
-    @deleted = current_user.phones.where(["updated_at < ?", export_datetime]).destroy_all().size if export_datetime
+    if export_datetime
+      scope = current_user.phones.where(["updated_at < ?", export_datetime])
+      scope = scope.where("id NOT IN (?)") if processed_ids.any?
+      @deleted = scope.destroy_all().size
+    end
   rescue CSV::MalformedCSVError => e
     redirect_to phones_path, :alert => "Invalid CSV file format"
   end

@@ -42,6 +42,18 @@ describe PhonesController do
 
         Phone.find_by_id(phone.id).should be_nil
       end
+
+      it "should not delete refreshed record" do
+        FactoryGirl.create :phone, :user => @user, :name => "Adriana Boyle", :number => "changed number"
+        FactoryGirl.create :phone, :user => @user, :name => "changed name", :number => "(733)284-4054"
+        FactoryGirl.create :phone, :user => @user, :name => "Alysa Kemmer", :number => "329-717-4832 x809"
+        Timecop.travel(feature) do
+          @file.stub(:original_filename).and_return("csv-#{DateTime.now.to_s(:number)}.csv")
+          lambda {
+            post :import, {:import => {:csv => @file}}
+          }.should_not change(Phone, :count)
+        end
+      end
     end
 
     context "with outdated file" do

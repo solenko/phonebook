@@ -1,0 +1,18 @@
+%h2 Import complete
+
+%p= "#{@line} lines processed."
+- unless @created.zero?
+  %p= "#{@created} new records added."
+- unless @updated.zero?
+  %p= "#{@updated} records updated."
+- unless @ignored.zero?
+  %p= "#{@ignored} records ignored."
+
+- if @errors.any?
+  %p= "#{@errors.size} errors."
+  %ul.collapsible.collapsed
+    - @errors.each_pair do |line, error|
+      %li= "On line ##{line}: #{error}"
+
+= link_to "Back to PhoneBook", phones_path
+
