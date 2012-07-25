@@ -1,12 +1,18 @@
 %h2 Import complete
 
-%p= "#{@import.line} lines processed."
-- unless @import.zero?
+%p= "#{@import.lines} lines processed."
+
+- unless @import.created.zero?
   %p= "#{@import.created} new records added."
+
 - unless @import.updated.zero?
   %p= "#{@import.updated} records updated."
+
 - unless @import.deleted.zero?
-  %p= "#{@import.deleted} records ignored."
+  %p= "#{@import.deleted} records deleted."
+
+- unless @import.ignored.zero?
+  %p= "#{@import.ignored} records ignored."
 
 - if @import.errors.any?
   %p= "#{@import.errors.size} errors."
